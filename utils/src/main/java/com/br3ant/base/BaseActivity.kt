@@ -14,7 +14,7 @@ import me.yokeyword.fragmentation.SupportActivity
 abstract class BaseActivity(
     private val layout: Int = 0,
     private val fullScreen: Boolean = false,
-    private val keepScreenOn: Boolean = true
+    private val keepScreenOn: Boolean = false
 ) : SupportActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         if (getThemeId() != 0) {
