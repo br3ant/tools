@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import com.gyf.immersionbar.ImmersionBar
 import me.yokeyword.fragmentation.SupportActivity
 
 /**
@@ -60,12 +61,12 @@ abstract class BaseActivity(
             //1:MIUUI 2:Flyme 3:android6.0 otherwise 设置0.2f透明度
 
             //不设置fitsSystemWindows会导致状态栏被挡住，设置后会导致全屏界面上面有白条
-//            ImmersionBar.with(this)
-//                    .statusBarDarkFont(true)
-//                    .keyboardEnable(true)
-//                    .statusBarColor(R.color.colorPrimaryDark)
-//                    .fitsSystemWindows(true)
-//                    .init()
+            ImmersionBar.with(this)
+                .statusBarDarkFont(true)
+                .keyboardEnable(true)
+                .statusBarColor("#ffffff")
+                .fitsSystemWindows(true)
+                .init()
         }
     }
 

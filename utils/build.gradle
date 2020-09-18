@@ -51,4 +51,9 @@ dependencies {
     //gson
     api 'com.google.code.gson:gson:2.8.6'
 
+    //状态栏
+    api 'com.gyf.immersionbar:immersionbar:3.0.0'
+    // 状态栏 kotlin扩展（可选）
+    api 'com.gyf.immersionbar:immersionbar-ktx:3.0.0'
+
 }
