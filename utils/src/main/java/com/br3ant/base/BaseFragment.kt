@@ -9,7 +9,7 @@ import androidx.annotation.IdRes
 import me.yokeyword.fragmentation.SupportFragment
 
 abstract class BaseFragment(val layout: Int = 0) : SupportFragment() {
-    protected lateinit var mRootView: View
+    private lateinit var mRootView: View
     protected lateinit var mContext: Context
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (!this::mRootView.isInitialized) {
