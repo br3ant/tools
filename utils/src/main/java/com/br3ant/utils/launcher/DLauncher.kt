@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.br3ant.utils.getIntent
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -21,7 +22,7 @@ import kotlin.coroutines.resumeWithException
 </pre> *
  */
 class DLauncher constructor(activity: FragmentActivity) {
-    private val mContext: Context
+    val mContext: Context
     private val mRouterFragmentX: DRouterX?
 
     constructor(fragment: Fragment) : this(fragment.requireActivity())
@@ -58,10 +59,10 @@ class DLauncher constructor(activity: FragmentActivity) {
         }
     }
 
-    suspend fun launcher(intent: Intent?): Bundle? =
+    suspend inline fun <reified T : Context> startActivityForResult(vararg pairs: Pair<String, Any>): Bundle? =
         suspendCancellableCoroutine { continuation ->
             try {
-                startActivityForResult(intent) { _, data ->
+                startActivityForResult(Intent(mContext.getIntent<T>(*pairs))) { _, data ->
                     continuation.resume(data?.extras)
                 }
             } catch (e: Exception) {
