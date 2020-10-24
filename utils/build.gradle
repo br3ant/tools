@@ -56,4 +56,6 @@ dependencies {
     // 状态栏 kotlin扩展（可选）
     api 'com.gyf.immersionbar:immersionbar-ktx:3.0.0'
 
+    //阴影
+    api 'com.github.lihangleo2:ShadowLayout:3.0.4'
 }
