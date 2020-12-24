@@ -10,21 +10,15 @@ import me.yokeyword.fragmentation.SupportActivity
 /**
  * 基类Activity
  */
-abstract class BaseActivity(
-    private val layout: Int = 0,
-    private val fullScreen: Boolean = false,
-    private val keepScreenOn: Boolean = false
-) : SupportActivity() {
+abstract class BaseActivity(private val layout: Int = 0, private val fullScreen: Boolean = false, private val keepScreenOn: Boolean = false) : SupportActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (getThemeId() != 0) {
             setTheme(getThemeId())
         }
         super.onCreate(savedInstanceState)
 
-        window.clearFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                    or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-        )
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         if (fullScreen) {
             window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
@@ -34,8 +28,7 @@ abstract class BaseActivity(
         //全面屏
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val lp = window.attributes
-            lp.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
             window.attributes = lp
         }
 
