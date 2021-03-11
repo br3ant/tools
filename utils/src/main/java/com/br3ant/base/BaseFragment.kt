@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
-import me.yokeyword.fragmentation.SupportFragment
+import com.weikaiyun.fragmentation.SupportFragment
 
 abstract class BaseFragment(val layout: Int = 0) : SupportFragment() {
     private lateinit var mRootView: View
@@ -28,8 +28,8 @@ abstract class BaseFragment(val layout: Int = 0) : SupportFragment() {
         initView()
     }
 
-    override fun onLazyInitView(savedInstanceState: Bundle?) {
-        super.onLazyInitView(savedInstanceState)
+    override fun lazyInit() {
+        super.lazyInit()
         observeData()
     }
 
