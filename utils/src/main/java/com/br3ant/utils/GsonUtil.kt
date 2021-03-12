@@ -1,111 +1,73 @@
-package com.br3ant.utils;
+package com.br3ant.utils
 
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-
-import java.io.StringReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.text.TextUtils
+import android.util.Log
+import com.google.gson.*
+import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import java.io.StringReader
+import java.lang.reflect.Type
+import java.util.*
 
 /**
  * <pre>
- *     copyright: datedu
- *     @author : br3ant
- *     e-mail : xxx@xx
- *     time   : 2020/4/28
- *     desc   :
- *     version: 1.0
- * </pre>
+ * copyright: datedu
+ * @author : br3ant
+ * e-mail : xxx@xx
+ * time   : 2020/4/28
+ * desc   :
+ * version: 1.0
+</pre> *
  */
-public class GsonUtil {
-    private static Gson gson;
-    private volatile static GsonUtil mInstance;
 
-    public GsonUtil() {
-        gson = new GsonBuilder().registerTypeAdapter(Integer.class, new IntegerDefault0Adapter())
-                .registerTypeAdapter(int.class, new IntegerDefault0Adapter())
-                .registerTypeAdapter(Double.class, new DoubleDefault0Adapter())
-                .registerTypeAdapter(double.class, new DoubleDefault0Adapter())
-                .registerTypeAdapter(Long.class, new LongDefault0Adapter())
-                .registerTypeAdapter(long.class, new LongDefault0Adapter())
-                .registerTypeAdapter(boolean.class, new BooleanDefault0Adapter())
-                .registerTypeAdapter(Boolean.class, new BooleanDefault0Adapter())
-                .registerTypeAdapter(JsonObject.class, new JsonObjectDefault0Adapter())
-                .create();
-    }
+fun Any.toJson(): String = GsonUtil.jsonCreate(this)
 
-    /**
-     * 单例模式的使用
-     */
-    public static GsonUtil getInstance() {
-        if (mInstance == null) {
-            synchronized (GsonUtil.class) {
-                if (mInstance == null) {
-                    mInstance = new GsonUtil();
-                }
-            }
-        }
-        return mInstance;
-    }
+inline fun <reified T> String?.toBean(): T? = GsonUtil.json2Bean(this, T::class.java)
 
-    public Gson getGson() {
-        return gson;
-    }
+inline fun <reified T> String?.toBeanElse(t: T): T = GsonUtil.json2Bean(this, T::class.java) ?: t
 
-    public static String jsonCreate(Object object) {
-        return getInstance()._jsonCreate(object);
-    }
+inline fun <reified T> String?.toList(): List<T> = GsonUtil.json2List(this, T::class.java) ?: emptyList()
 
-    public static Map<String, Object> json2Map(String jsonString) {
-        try {
-            return getInstance()._json2Map(jsonString);
-        } catch (Exception e) {
-            Log.e("json2Map", e.toString());
-            return new HashMap<>();
-        }
-    }
 
-    public static <T> List<T> json2List(String jsonString, Class<T> cls) {
-        try {
-            return getInstance()._json2List(jsonString, cls);
-        } catch (Exception e) {
-            Log.e("json2List", e.toString());
-            return new ArrayList<>();
-        }
-    }
-
-    public static <T> T json2Bean(String jsonString, Class<T> cls) {
-        try {
-            return getInstance()._json2Bean(jsonString, cls);
-        } catch (Exception e) {
-            Log.e("json2Bean", e.toString());
-            return null;
-        }
-    }
-
-    public static <T> List<T> jsonRecreateList(List<?> list, Class<T> cls) {
-        return GsonUtil.json2List(GsonUtil.jsonCreate(list), cls);
-    }
+object GsonUtil {
+    var gson: Gson
+        private set
     /*--------------------------------------*/
+
+    fun jsonCreate(any: Any): String {
+        return gson.toJson(any)
+    }
+
+    fun json2Map(jsonString: String): Map<String, Any?> {
+        return try {
+            _json2Map(jsonString)
+        } catch (e: Exception) {
+            Log.e("json2Map", e.toString())
+            HashMap()
+        }
+    }
+
+    fun <T> json2List(jsonString: String?, cls: Class<T>): List<T>? {
+        return try {
+            _json2List(jsonString, cls)
+        } catch (e: Exception) {
+            Log.e("json2List", e.toString())
+            ArrayList()
+        }
+    }
+
+    fun <T> json2Bean(jsonString: String?, cls: Class<T>): T? {
+        return try {
+            _json2Bean(jsonString, cls)
+        } catch (e: Exception) {
+            Log.e("json2Bean", e.toString())
+            null
+        }
+    }
+
+    fun <T> jsonRecreateList(list: List<*>, cls: Class<T>): List<T>? {
+        return json2List(jsonCreate(list), cls)
+    }
 
     /**
      * 将Json字符串转化为List<T>对象
@@ -113,20 +75,19 @@ public class GsonUtil {
      * @param jsonString Json字符串
      * @param cls        类型 即实体类
      * @return List<T>对象
-     */
-    private <T> List<T> _json2List(String jsonString, Class<T> cls) {
+    </T></T> */
+    private fun <T> _json2List(jsonString: String?, cls: Class<T>): List<T>? {
         if (TextUtils.isEmpty(jsonString)) {
-            return null;
+            return null
         }
-        List<T> list = new ArrayList<>();
-        JsonArray array = new JsonParser().parse(jsonString).getAsJsonArray();
-        if (gson != null) {
-            for (final JsonElement elem : array) {
-                list.add(gson.fromJson(elem, cls));
-            }
+        val list: MutableList<T> = ArrayList()
+        val array = JsonParser().parse(jsonString).asJsonArray
+
+        for (elem in array) {
+            list.add(gson.fromJson(elem, cls))
         }
 
-        return list;
+        return list
     }
 
     /**
@@ -135,155 +96,142 @@ public class GsonUtil {
      * @param jsonString json数据
      * @return bean
      */
-    private <T> T _json2Bean(String jsonString, Class<T> cls) {
-        T t = null;
-        if (gson != null) {
-            JsonReader reader = new JsonReader(new StringReader(jsonString));
-            reader.setLenient(true);
-            t = gson.fromJson(reader, cls);
-        }
-        return t;
+    private fun <T> _json2Bean(jsonString: String?, cls: Class<T>): T? {
+        if (jsonString.isNullOrEmpty()) return null
+        val reader = JsonReader(StringReader(jsonString))
+        reader.isLenient = true
+        return gson.fromJson(reader, cls)
     }
 
     /**
-     * 将Json字符串转化为Map<String, Object>对象
+     * 将Json字符串转化为Map<String></String>, Object>对象
      *
      * @param jsonString Json字符串
      * @return Map对象
      */
-    private Map<String, Object> _json2Map(String jsonString) {
-        Map<String, Object> map = new HashMap<>();
-        if (gson != null) {
-            map = gson.fromJson(jsonString,
-                    new TypeToken<Map<String, Object>>() {
-                    }.getType());
-        }
-        return map;
+    private fun _json2Map(jsonString: String): Map<String, Any?> {
+        return gson.fromJson(jsonString, object : TypeToken<Map<String, Any?>>() {}.type)
     }
 
-    /**
-     * 转成json
-     *
-     * @param object 对象
-     * @return json
-     */
-    private String _jsonCreate(Object object) {
-        String gsonString = null;
-        if (gson != null) {
-            gsonString = gson.toJson(object);
-        }
-        return gsonString;
-    }
 
-    static class IntegerDefault0Adapter implements JsonSerializer<Integer>, JsonDeserializer<Integer> {
-        @Override
-        public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+    private class IntegerDefault0Adapter : JsonSerializer<Int?>, JsonDeserializer<Int> {
+        @Throws(JsonParseException::class)
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Int {
             try {
-                if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为int类型,如果后台返回""或者null,则返回0
-                    return 0;
+                if (json.asString == "" || json.asString == "null") { //定义为int类型,如果后台返回""或者null,则返回0
+                    return 0
                 }
-            } catch (Exception ignore) {
+            } catch (ignore: Exception) {
             }
-            try {
-                return json.getAsInt();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
-            }
-        }
-
-        @Override
-        public JsonElement serialize(Integer src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
-        }
-    }
-
-    class DoubleDefault0Adapter implements JsonSerializer<Double>, JsonDeserializer<Double> {
-        @Override
-        public Double deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            try {
-                if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为double类型,如果后台返回""或者null,则返回0.00
-                    return 0.00;
-                }
-            } catch (Exception ignore) {
-            }
-            try {
-                return json.getAsDouble();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+            return try {
+                json.asInt
+            } catch (e: NumberFormatException) {
+                throw JsonSyntaxException(e)
             }
         }
 
-        @Override
-        public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
+        override fun serialize(
+            src: Int?,
+            typeOfSrc: Type,
+            context: JsonSerializationContext
+        ): JsonElement {
+            return JsonPrimitive(src)
         }
     }
 
-    class LongDefault0Adapter implements JsonSerializer<Long>, JsonDeserializer<Long> {
-        @Override
-        public Long deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+    private class DoubleDefault0Adapter : JsonSerializer<Double?>, JsonDeserializer<Double> {
+        @Throws(JsonParseException::class)
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Double {
             try {
-                if (json.getAsString().equals("") || json.getAsString().equals("null")) {//定义为long类型,如果后台返回""或者null,则返回0
-                    return 0L;
+                if (json.asString == "" || json.asString == "null") { //定义为double类型,如果后台返回""或者null,则返回0.00
+                    return 0.00
                 }
-            } catch (Exception ignore) {
+            } catch (ignore: Exception) {
             }
-            try {
-                return json.getAsLong();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+            return try {
+                json.asDouble
+            } catch (e: NumberFormatException) {
+                throw JsonSyntaxException(e)
             }
         }
 
-        @Override
-        public JsonElement serialize(Long src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
+        override fun serialize(src: Double?, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+            return JsonPrimitive(src)
         }
     }
 
-    class BooleanDefault0Adapter implements JsonSerializer<Boolean>, JsonDeserializer<Boolean> {
-        @Override
-        public Boolean deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+    private class LongDefault0Adapter : JsonSerializer<Long?>, JsonDeserializer<Long> {
+        @Throws(JsonParseException::class)
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Long {
             try {
-                if (json.getAsInt() == 1) {
-                    return true;
-                } else if (json.getAsInt() == 0) {
-                    return false;
+                if (json.asString == "" || json.asString == "null") { //定义为long类型,如果后台返回""或者null,则返回0
+                    return 0L
                 }
-            } catch (Exception ignore) {
+            } catch (ignore: Exception) {
             }
-            try {
-                return json.getAsBoolean();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+            return try {
+                json.asLong
+            } catch (e: NumberFormatException) {
+                throw JsonSyntaxException(e)
             }
         }
 
-        @Override
-        public JsonElement serialize(Boolean src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src);
+        override fun serialize(src: Long?, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+            return JsonPrimitive(src)
         }
     }
 
-    class JsonObjectDefault0Adapter implements JsonDeserializer<JsonObject> {
-        @Override
-        public JsonObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
+    private class BooleanDefault0Adapter : JsonSerializer<Boolean?>,
+        JsonDeserializer<Boolean> {
+        @Throws(JsonParseException::class)
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Boolean {
             try {
-                if (TextUtils.isEmpty(json.getAsString())) {
-                    return null;
+                if (json.asInt == 1) {
+                    return true
+                } else if (json.asInt == 0) {
+                    return false
                 }
-            } catch (Exception ignore) {
+            } catch (ignore: Exception) {
             }
-            try {
-                return json.getAsJsonObject();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+            return try {
+                json.asBoolean
+            } catch (e: NumberFormatException) {
+                throw JsonSyntaxException(e)
             }
         }
 
+        override fun serialize(src: Boolean?, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+            return JsonPrimitive(src)
+        }
+    }
+
+    private class JsonObjectDefault0Adapter : JsonDeserializer<JsonObject?> {
+        @Throws(JsonParseException::class)
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): JsonObject? {
+            try {
+                if (TextUtils.isEmpty(json.asString)) {
+                    return null
+                }
+            } catch (ignore: Exception) {
+            }
+            return try {
+                json.asJsonObject
+            } catch (e: NumberFormatException) {
+                throw JsonSyntaxException(e)
+            }
+        }
+    }
+
+    init {
+        gson = GsonBuilder().registerTypeAdapter(Int::class.java, IntegerDefault0Adapter())
+            .registerTypeAdapter(Int::class.javaPrimitiveType, IntegerDefault0Adapter())
+            .registerTypeAdapter(Double::class.java, DoubleDefault0Adapter())
+            .registerTypeAdapter(Double::class.javaPrimitiveType, DoubleDefault0Adapter())
+            .registerTypeAdapter(Long::class.java, LongDefault0Adapter())
+            .registerTypeAdapter(Long::class.javaPrimitiveType, LongDefault0Adapter())
+            .registerTypeAdapter(Boolean::class.javaPrimitiveType, BooleanDefault0Adapter())
+            .registerTypeAdapter(Boolean::class.java, BooleanDefault0Adapter())
+            .registerTypeAdapter(JsonObject::class.java, JsonObjectDefault0Adapter())
+            .create()
     }
 }

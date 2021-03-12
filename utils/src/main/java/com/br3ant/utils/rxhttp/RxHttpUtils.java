@@ -26,6 +26,6 @@ public class RxHttpUtils {
                 .writeTimeout(20000, TimeUnit.MILLISECONDS)
                 .connectTimeout(20000, TimeUnit.MILLISECONDS).build());
 
-        RxHttp.setConverter(GsonConverter.create(GsonUtil.getInstance().getGson()));
+        RxHttp.setConverter(GsonConverter.create(GsonUtil.INSTANCE.getGson()));
     }
 }
