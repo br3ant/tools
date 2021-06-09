@@ -1,6 +1,7 @@
 package com.br3ant.utils.rxhttp;
 
 import com.br3ant.utils.GsonUtil;
+import com.br3ant.utils.rxhttp.interceptor.LogInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,7 @@ public class RxHttpUtils {
     public static void init() {
 
         RxHttp.init(new OkHttpClient.Builder()
+                .addInterceptor(new LogInterceptor())
                 .readTimeout(20000, TimeUnit.MILLISECONDS)
                 .writeTimeout(20000, TimeUnit.MILLISECONDS)
                 .connectTimeout(20000, TimeUnit.MILLISECONDS).build());
