@@ -1,6 +1,5 @@
 package com.br3ant.base
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,19 +7,14 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import com.weikaiyun.fragmentation.SupportFragment
 
-abstract class BaseFragment(val layout: Int = 0) : SupportFragment() {
-    private lateinit var mRootView: View
-    protected lateinit var mContext: Context
+/**
+ * layout必须传，使用viewBing也要传
+ */
+abstract class BaseFragment(private val layout: Int = 0) : SupportFragment() {
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (!this::mRootView.isInitialized) {
-            val id = if (layout == 0) getLayoutId() else layout
-            if (id == 0) throw IllegalAccessException("layoutId 不能为空")
-
-            mRootView = inflater.inflate(id, container, false)
-            mContext = mRootView.context
-        }
-        return mRootView
-
+        val id = if (layout == 0) getLayoutId() else layout
+        return inflater.inflate(id, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,10 +27,9 @@ abstract class BaseFragment(val layout: Int = 0) : SupportFragment() {
         observeData()
     }
 
-    fun <T : View> findViewById(@IdRes id: Int): T {
-        return mRootView.findViewById(id)
-    }
+    fun <T : View> findViewById(@IdRes viewId: Int): T? = view?.findViewById(viewId)
 
+    @Deprecated("使用构造函数传递或者使用viewBing", ReplaceWith("viewBing"))
     protected open fun getLayoutId(): Int = 0
     protected open fun observeData() {}
     protected abstract fun initView()
