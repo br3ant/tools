@@ -1,4 +1,4 @@
-package com.br3ant.utils
+package com.br3ant.ext
 
 import android.content.res.Resources
 import android.util.TypedValue

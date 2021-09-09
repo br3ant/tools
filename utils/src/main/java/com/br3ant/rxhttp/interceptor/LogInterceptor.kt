@@ -1,4 +1,4 @@
-package com.br3ant.utils.rxhttp.interceptor
+package com.br3ant.rxhttp.interceptor
 
 import com.blankj.utilcode.util.LogUtils
 import okhttp3.Interceptor

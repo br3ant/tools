@@ -1,4 +1,4 @@
-package com.br3ant.utils.launcher
+package com.br3ant.launcher
 
 import android.content.Intent
 import android.os.Bundle

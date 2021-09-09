@@ -1,4 +1,4 @@
-package com.br3ant.utils.rxhttp
+package com.br3ant.rxhttp
 
 /**
  * 用来封装业务错误信息

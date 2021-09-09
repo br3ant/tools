@@ -1,4 +1,4 @@
-package com.br3ant.utils.coroutine
+package com.br3ant.coroutine
 
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicReference

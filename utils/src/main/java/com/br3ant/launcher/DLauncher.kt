@@ -1,12 +1,13 @@
-package com.br3ant.utils.launcher
+package com.br3ant.launcher
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.br3ant.utils.getIntent
+import com.br3ant.ext.getIntent
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -30,7 +31,7 @@ class DLauncher constructor(activity: FragmentActivity) {
     constructor(activity: Activity) : this(activity as FragmentActivity)
 
 
-    private fun getRouterFragmentX(activity: FragmentActivity): DRouterX? {
+    private fun getRouterFragmentX(activity: FragmentActivity): DRouterX {
 
         return findRouterFragmentX(activity) ?: DRouterX.newInstance().also {
             val fragmentManager = activity.supportFragmentManager
@@ -62,7 +63,7 @@ class DLauncher constructor(activity: FragmentActivity) {
     suspend inline fun <reified T : Context> startActivityForResult(vararg pairs: Pair<String, Any>): Bundle? =
         suspendCancellableCoroutine { continuation ->
             try {
-                startActivityForResult(Intent(mContext.getIntent<T>(*pairs))) { _, data ->
+                startActivityForResult(Intent(mContext.getIntent<T>(extra = bundleOf(*pairs)))) { _, data ->
                     continuation.resume(data?.extras)
                 }
             } catch (e: Exception) {

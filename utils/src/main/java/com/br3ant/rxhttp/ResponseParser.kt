@@ -1,4 +1,4 @@
-package com.br3ant.utils.rxhttp
+package com.br3ant.rxhttp
 
 
 import rxhttp.wrapper.annotation.Parser

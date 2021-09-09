@@ -1,17 +1,26 @@
-package com.br3ant.utils
+package com.br3ant.ext
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.EditText
 import android.widget.ImageView
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 
 /**
@@ -54,6 +63,27 @@ fun View.changeVisible(visible: Boolean, needGone: Boolean = true) {
 
 fun View.toggle(needGone: Boolean = true) {
     if (needGone) isGone = !isGone else isVisible = !isVisible
+}
+
+fun View.enabledWithAlpha(enabled: Boolean, defaultAlpha: Float = 0.3f) {
+    isEnabled = enabled
+    alpha = if (enabled) 1f else defaultAlpha
+}
+
+@ExperimentalCoroutinesApi
+fun EditText.textChangeFlow(): Flow<CharSequence> = callbackFlow {
+    // 构建输入框监听器
+    val watcher = object : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        // 在文本变化后向流发射数据
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            s?.let { trySend(it) }
+        }
+    }
+    addTextChangedListener(watcher) // 设置输入框监听器
+    awaitClose { removeTextChangedListener(watcher) } // 阻塞以保证流一直运行
 }
 
 
@@ -195,3 +225,17 @@ fun View.clickN(count: Int = 1, interval: Long = 1000, action: () -> Unit) {
         }
     }
 }
+
+private tailrec fun getCompatActivity(context: Context?): AppCompatActivity? {
+    return when (context) {
+        is AppCompatActivity -> context
+        is androidx.appcompat.view.ContextThemeWrapper -> getCompatActivity(context.baseContext)
+        is android.view.ContextThemeWrapper -> getCompatActivity(context.baseContext)
+        else -> null
+    }
+}
+
+val View.activity: AppCompatActivity?
+    get() = getCompatActivity(context)
+
+fun View.activityDestroyed(): Boolean = activity?.isDestroyed ?: true
